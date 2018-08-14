@@ -4,24 +4,57 @@
  */
 
 var cards = document.getElementsByClassName('card'); // Array of 16
-var cardss = document.querySelectorAll('.card');
-console.log(cardss);
-console.log(cards);
+
 // array of 8 symbols .class for the cards
 var symbols = ['fa-diamond', 'fa-paper-plane-o', 'fa-anchor', 'fa-bolt', 'fa-cube', 'fa-leaf', 'fa-bicycle', 'fa-bomb'];
 // double array for each 8 card pair
 var symbols2 = [...symbols,...symbols];
 //var cards = [...card];
 
+// Shuffle the symbols and add them to each card
+var shuffled;
+var restart = document.querySelector('.restart');
+var openedCards = []; // array of open cards
+var matchedCards = []; // array of matched cards
 
-// var counter = document.getElementsByClassName('moves'); //returns HTMLCollection
+// variables for timer
+var timer = document.querySelector('.timer');
+var second = 0;
+var minute = 0;
+var interval;
+
+// variables for score panel
+var star = document.querySelector('.stars');
+var counter = document.querySelector('.moves'); //returns span element
+var moves = 0;
+
+restart.addEventListener('click', start);
+
+window.addEventListener('load', start);
+// window.onload = start();
+
+//var starts = document.getElementsByClassName('restart')[0];
+//var counter = document.getElementsByClassName('moves'); //returns HTMLCollection
 //var counter = document.querySelectorAll('.moves'); //returns NodeList, [0] returns span element
 
-
 function start() {
-    var shuffled = shuffle(symbols);
-    var moves = 0;
+    // initialize score panel
+    moves = 0;
+    shuffled  = shuffle(symbols2);
+    for (let i = 0; i < cards.length; i++) {
+        // add shuffled symbol to each card
+        cards[i].firstElementChild.classList.add(shuffled[i]);
+    }
     counter.innerHTML = moves;
+    star.innerHTML = `
+        <li><i class="fa fa-star"></i></li>
+        <li><i class="fa fa-star"></i></li>
+        <li><i class="fa fa-star"></i></li>`;
+    second = 0;
+    minute = 0;
+    timer.innerHTML = `${minute} : ${second}`;
+    clearInterval(interval); // clears interval
+    //modal.style.visibility = "hidden";
 }
 
 /*
@@ -45,9 +78,6 @@ function shuffle(array) {
     return array;
 }
 
-// Shuffle the symbols and add them to each card
-var shuffled = shuffle(symbols2);
-
 /*
  * set up the event listener for a card. If a card is clicked:
  *  - display the card's symbol (put this functionality in another function that you call from this one) $
@@ -61,8 +91,6 @@ var shuffled = shuffle(symbols2);
 
 
 for (let i = 0; i < cards.length; i++) {
-    // add shuffled symbol to each card
-    cards[i].firstElementChild.classList.add(shuffled[i]);
     // add event listener for each card
     cards[i].addEventListener('click', displayCard); // how do i pass "this" with functions
     cards[i].addEventListener('click', openCard); 
@@ -75,13 +103,9 @@ function displayCard() {
 }
 
 // add open cards to a list
-var openedCards = []; // array of open cards
-var matchedCards = []; // array of matched cards
 function openCard() {
     openedCards.push(this);
-    console.log("open cards: " + openedCards);
     if (openedCards.length === 2) {
-        console.log("len = 2");
         updateScore(); //update timer and score
         if (openedCards[0].innerHTML == openedCards[1].innerHTML) {
             // add matched cards to matched list
@@ -98,10 +122,13 @@ function matched() {
     openedCards.forEach(card => { //what is card pointing too?  [object HTMLLIElement]
         card.classList.add('match');
         matchedCards.push(card)
-        console.log("matched cards: " + card);
     });
     // empty opened cards array
     openedCards = [];
+
+    if (matchedCards.length === 16) {
+        congratulations();
+    }
 }
 
 function unmatched() {
@@ -114,12 +141,8 @@ function unmatched() {
 }
 
 // calls timer and updates score panel
-var star = document.querySelector('.stars');
-var counter = document.querySelector('.moves'); //returns span element
-var moves = 0;
 function updateScore() {
     moves++;
-    console.log("update moves: " + moves);
     counter.innerHTML = moves;
     // start timer on first pair
     if (moves == 1) { // if moves is number
@@ -138,11 +161,8 @@ function updateScore() {
 }
 
 // updates timer 
-var second = 0;
-var minute = 0;
-var timer = document.querySelector('.timer');
 function startTimer() {
-    var interval = setInterval(() => {
+    interval = setInterval(() => {
         timer.innerHTML = `${minute} : ${second}`;
         second++;
         if (second === 60) {
@@ -152,4 +172,28 @@ function startTimer() {
     },1000);
 }
 
-function 
+var modal = document.querySelector('.modal');
+//var modal = document.getElementById('modal'); //id returns element
+//var modal = document.getElementsByClassName('modal');
+var playAgainButton = document.querySelector('.playAgainBtn');
+playAgainButton.addEventListener('click', playAgain);
+var finalTime;
+function congratulations() {
+    clearInterval(interval);
+    finalTime = timer.innerHTML;
+
+    // CSS in JS, should I use add classlist?
+    //modal.style.display = "block";
+    modal.style.visibility = "visible";
+    var finalStars = document.querySelector('.stars').children.length; //get final number of stars 
+    document.querySelector(".finalMoves").innerHTML = moves;
+    document.querySelector(".finalStar").innerHTML = finalStars;
+}
+
+function playAgain() {
+    modal.style.visibility = "hidden";
+    console.log(matchedCards);
+    matchedCards.forEach(card => card.classList.remove('open', 'show', 'disabled','match'))
+    matchedCards = [];
+    start();
+}
