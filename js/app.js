@@ -3,19 +3,23 @@
  * Create a list that holds all of your cards
  */
 
-var cards = document.getElementsByClassName('card'); // Array of 16
-
+//var card = document.getElementsByClassName('card'); // Array of 16
+var card = document.querySelectorAll('.card');
+var cards = [...card];
+//var deck = document.getElementsByClassName('deck');
+var deck = document.querySelector('.deck');
+console.log(deck);
 // array of 8 symbols .class for the cards
-var symbols = ['fa-diamond', 'fa-paper-plane-o', 'fa-anchor', 'fa-bolt', 'fa-cube', 'fa-leaf', 'fa-bicycle', 'fa-bomb'];
+//var symbols = ['fa-diamond', 'fa-paper-plane-o', 'fa-anchor', 'fa-bolt', 'fa-cube', 'fa-leaf', 'fa-bicycle', 'fa-bomb'];
 // double array for each 8 card pair
-var symbols2 = [...symbols,...symbols];
-//var cards = [...card];
+//var symbols2 = [...symbols,...symbols];
+
 
 // Shuffle the symbols and add them to each card
-var shuffled;
-var restart = document.querySelector('.restart');
-var openedCards = []; // array of open cards
-var matchedCards = []; // array of matched cards
+//var shuffled;
+//var restart = document.querySelector('.restart');
+var openedCards; // array of open cards
+var matchedCards; // array of matched cards
 
 // variables for timer
 var timer = document.querySelector('.timer');
@@ -28,7 +32,7 @@ var star = document.querySelector('.stars');
 var counter = document.querySelector('.moves'); //returns span element
 var moves = 0;
 
-restart.addEventListener('click', start);
+//restart.addEventListener('click', start);
 
 window.addEventListener('load', start);
 // window.onload = start();
@@ -40,10 +44,14 @@ window.addEventListener('load', start);
 function start() {
     // initialize score panel
     moves = 0;
-    shuffled  = shuffle(symbols2);
+    openedCards = [];
+    matchedCards = [];
+    cards = shuffle(cards);
+    deck.innerHTML = '';
     for (let i = 0; i < cards.length; i++) {
         // add shuffled symbol to each card
-        cards[i].firstElementChild.classList.add(shuffled[i]);
+        deck.appendChild(cards[i]);
+        cards[i].classList.remove('open', 'show', 'match', 'unmatched', 'disabled');
     }
     counter.innerHTML = moves;
     star.innerHTML = `
@@ -176,7 +184,9 @@ var modal = document.querySelector('.modal');
 //var modal = document.getElementById('modal'); //id returns element
 //var modal = document.getElementsByClassName('modal');
 var playAgainButton = document.querySelector('.playAgainBtn');
+var restartButton = document.querySelector('.restart');
 playAgainButton.addEventListener('click', playAgain);
+restartButton.addEventListener('click',playAgain);
 var finalTime;
 function congratulations() {
     clearInterval(interval);
@@ -192,8 +202,7 @@ function congratulations() {
 
 function playAgain() {
     modal.style.visibility = "hidden";
-    console.log(matchedCards);
-    matchedCards.forEach(card => card.classList.remove('open', 'show', 'disabled','match'))
-    matchedCards = [];
     start();
 }
+
+//restart not working -> shuffling, matching, and one is clicked
